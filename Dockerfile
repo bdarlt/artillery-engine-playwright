@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.27.1
+FROM mcr.microsoft.com/playwright:v1.29.2-focal
 LABEL maintainer="team@artillery.io"
 
 RUN npm install -g artillery artillery-engine-playwright && \

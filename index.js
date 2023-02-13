@@ -94,7 +94,7 @@ class PlaywrightEngine {
             events.emit('counter', `browser.page.domcontentloaded.${getName(page.url())}`, 1);
             events.emit('histogram', 'browser.page.dominteractive', startToInteractive);
             events.emit('histogram', `browser.page.dominteractive.${getName(page.url())}`, startToInteractive);
-          } catch(err) {}
+          } catch(err) {events.emit('error', `browser.domContentLoadedException.${getName(page.url())}`;}
         });
 
         page.on('console', async msg => {
@@ -108,7 +108,7 @@ class PlaywrightEngine {
               if (url.startsWith(self.target) || self.showAllPageMetrics) {
                 events.emit('histogram', `browser.page.${name}.${getName(url)}`, value);
               }
-            } catch (err) {}
+            } catch(err) {events.emit('error', `browser.consoleException.${getName(page.url())}`;}
           }
         });
 
@@ -122,11 +122,17 @@ class PlaywrightEngine {
 
             const { usedJSHeapSize } = JSON.parse(await page.evaluate(() => JSON.stringify({usedJSHeapSize: window.performance.memory.usedJSHeapSize})));
             events.emit('histogram', 'browser.memory_used_mb', usedJSHeapSize / 1000 / 1000);
-          } catch(err) {}
+          } catch(err) {events.emit('error', `browser.pageLoadException.${getName(page.url())}`;}
         });
 
         page.on('pageerror', (error) => {
           debug('pageerror:', getName(page.url()));
+          events.emit('error', `browser.pageError.${getName(page.url())}`;
+        });
+        
+        page.on('crash', (error) => {
+          debug('crash:', getName(page.url()));
+          events.emit('error', `browser.crash.${getName(page.url())}`;
         });
         page.on('requestfinished', (request) => {
           // const timing = request.timing();
